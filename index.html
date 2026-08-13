@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>Funbox / 來玩聚｜抽選監控中心</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div>
+    <div class="eyebrow">FUNBOX × 來玩聚</div>
+    <h1>抽選監控中心</h1>
+    <p>74 間門市集中管理。先把品牌、地區、LINE 與 Facebook 來源整理好；新抽選會集中顯示在「活動」頁。</p>
+  </div>
+  <div class="stats">
+    <div><b id="total">74</b><span>門市</span></div>
+    <div><b id="newCount">0</b><span>新活動</span></div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-view="stores">門市</button>
+  <button class="tab" data-view="activities">抽選活動 <em id="activityBadge">0</em></button>
+</nav>
+
+<section id="storeView">
+  <div class="panel controls">
+    <div class="seg" id="brandFilters">
+      <button class="active" data-brand="全部">全部 <span>74</span></button>
+      <button data-brand="Funbox">Funbox <span>67</span></button>
+      <button data-brand="來玩聚">來玩聚 <span>7</span></button>
+    </div>
+    <div class="seg" id="regionFilters">
+      <button class="active" data-region="全部">全部</button>
+      <button data-region="北部">北部</button>
+      <button data-region="中部">中部</button>
+      <button data-region="南部">南部</button>
+      <button data-region="東部">東部</button>
+      <button data-region="離島">離島</button>
+    </div>
+    <input id="search" placeholder="搜尋門市、LINE ID…">
+  </div>
+  <div id="grid" class="grid"></div>
+</section>
+
+<section id="activityView" class="hidden">
+  <div class="panel activity-head">
+    <div>
+      <h2>最新抽選</h2>
+      <p>這裡會顯示監控器產生的活動資料。第一版先保留資料格式與介面，之後接自動抓取。</p>
+    </div>
+    <span class="status">監控架構已就緒</span>
+  </div>
+  <div id="activities" class="activity-list"></div>
+</section>
+
+<footer>74 間基準資料｜67 Funbox＋7 來玩聚｜北／中／南／東／離島</footer>
+</div>
+<script src="data.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

@@ -6,7 +6,7 @@
  */
 (() => {
   const SOURCE = 'https://uxux11.github.io/funbox-line/';
-  const CACHE_KEY = 'funbox-gyro-cache-v2';
+  const CACHE_KEY = 'funbox-gyro-cache-v3';
   const SYNC_KEY = 'funbox-gyro-last-sync';
   const INTERVAL = 10 * 60 * 1000;
   const PROXY = url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
@@ -23,70 +23,167 @@
   function normalizeUrl(href) {
     try { return new URL(href, SOURCE).href; } catch { return ''; }
   }
+
   function isDrawUrl(url) {
     return /(^https?:\/\/)?(liff\.line\.me|lin\.ee)\//i.test(url);
   }
+
   function clean(s) {
-    return String(s || '').replace(/\s+/g,' ').replace(/[|•·]+/g,' ').trim();
+    return String(s || '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/[\t\r\n]+/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   }
-  function findCity(text) {
-    const hit = cities.find(c => text.includes(c));
-    if (hit) return hit;
-    const short = ['台北','新北','桃園','新竹','苗栗','台中','彰化','南投','雲林','嘉義','台南','高雄','屏東','宜蘭','花蓮','台東'];
-    const s = short.find(c => text.includes(c));
-    return s ? s + (s==='台北'?'市':s==='新北'?'市':s==='桃園'?'市':s==='新竹'?'市':s==='台中'?'市':s==='嘉義'?'市':s==='台南'?'市':s==='高雄'?'市':'縣') : '';
+
+  function cityFromStore(store) {
+    if (!store) return '未分類';
+    if (store.city) return store.city;
+    return '未分類';
   }
-  function findDate(text) {
-    const m = text.match(/(?:抽選|抽籤|日期|期間)?\s*(\d{1,4}[\/.\-]\d{1,2}(?:[\/.\-]\d{1,2})?(?:\s*[~～至]\s*\d{1,4}[\/.\-]\d{1,2}(?:[\/.\-]\d{1,2})?)?)/);
-    if (m) return m[1];
-    const m2 = text.match(/(\d{1,2}\/\d{1,2}(?:\s*[-~～]\s*\d{1,2}\/\d{1,2})?)/);
-    return m2 ? m2[1] : '抽選中';
+
+  // 你的主網站 data.js 已經有完整的 77 間門市資料。
+  // 這裡用它來辨識「來源頁上的門市」，而不是從整段 HTML 猜門市名稱。
+  function getKnownStores() {
+    const rows = Array.isArray(window.FUNBOX_STORES) ? window.FUNBOX_STORES : [];
+    return rows.map(x => ({
+      name: clean(x.name),
+      city: x.city || '未分類',
+      aliases: [
+        clean(x.name),
+        clean(x.name).replace(/^Funbox\s*/i, ''),
+        clean(x.name).replace(/^Funbox\s*/i, '').replace(/\s+/g, '')
+      ].filter(Boolean)
+    }));
   }
-  function nearestContext(a) {
-    let el = a;
-    let best = '';
-    for (let i=0;i<7 && el;i++,el=el.parentElement) {
-      const t = clean(el.textContent);
-      if (t && t.length > best.length && t.length < 700) best = t;
-      if (el.matches && el.matches('article,li,section,[class*="card"],[class*="item"],[class*="store"]')) {
-        if (t.length < 1200) return t;
+
+  function textHasStore(text, store) {
+    const t = clean(text).replace(/\s+/g, '');
+    return store.aliases.some(a => t.includes(a.replace(/\s+/g, '')));
+  }
+
+  function findStoreForAnchor(anchor, knownStores) {
+    // 只在「含有這個抽選按鈕」的最小容器中找門市，避免把整個 body 當成一間店。
+    let el = anchor;
+    let best = null;
+    for (let depth = 0; depth < 9 && el; depth++, el = el.parentElement) {
+      const text = clean(el.textContent);
+      if (!text || text.length > 2500) continue;
+      const drawCount = [...el.querySelectorAll('a[href]')]
+        .filter(a => isDrawUrl(normalizeUrl(a.getAttribute('href')))).length;
+      if (!drawCount) continue;
+      const match = knownStores.find(s => textHasStore(text, s));
+      if (match) {
+        best = { store: match, container: el };
+        // 已經找到只包含少量抽選按鈕的區塊，優先使用它。
+        if (drawCount <= 8) break;
       }
     }
     return best;
   }
-  function extractProduct(context, anchorText) {
-    let t = clean(context.replace(anchorText,''));
-    t = t.replace(/抽獎\s*[↗→]?/gi,'').replace(/加入好友|LINE|lin\.ee|liff\.line\.me/gi,'');
-    t = t.replace(/(?:抽選|抽籤)?\s*\d{1,4}[\/.\-]\d{1,2}(?:[\/.\-]\d{1,2})?(?:\s*[~～至-]\s*\d{1,4}[\/.\-]\d{1,2}(?:[\/.\-]\d{1,2})?)?/g,'');
-    const parts = t.split(/(?=[\u4e00-\u9fffA-Za-z0-9])/).map(clean).filter(Boolean);
-    const bad = /^(台北市|新北市|桃園市|新竹市|新竹縣|苗栗縣|台中市|彰化縣|南投縣|雲林縣|嘉義市|嘉義縣|台南市|高雄市|屏東縣|宜蘭縣|花蓮縣|台東縣|抽選|抽籤|門市|店|商品)$/;
-    const candidates = parts.filter(x => !bad.test(x) && x.length >= 2);
-    return candidates.slice(-2).join(' ') || '陀螺抽選商品';
+
+  function findRow(anchor, storeContainer) {
+    let el = anchor;
+    for (let depth = 0; depth < 8 && el && el !== storeContainer; depth++, el = el.parentElement) {
+      const links = [...el.querySelectorAll('a[href]')]
+        .filter(a => isDrawUrl(normalizeUrl(a.getAttribute('href'))));
+      if (links.length === 1 && clean(el.textContent).length <= 700) return el;
+    }
+    return anchor.parentElement || anchor;
   }
-  function extractStore(context, city) {
-    const lines = context.split(/\s{2,}|(?=台北市|新北市|桃園市|新竹市|新竹縣|苗栗縣|台中市|彰化縣|南投縣|雲林縣|嘉義市|嘉義縣|台南市|高雄市|屏東縣|宜蘭縣|花蓮縣|台東縣)/).map(clean).filter(Boolean);
-    const cityIdx = city ? lines.findIndex(x => x.includes(city)) : -1;
-    const pool = lines.filter(x => !/抽獎|加入好友|抽選日期|抽選期間/.test(x));
-    if (cityIdx >= 0 && lines[cityIdx+1]) return lines[cityIdx+1].slice(0,80);
-    return pool.find(x => /店|SOGO|Lalaport|遠百|巨城|三井|百貨|購物中心|站/.test(x))?.slice(0,80) || pool[0]?.slice(0,80) || 'Funbox 門市';
+
+  function findDate(text) {
+    const t = clean(text);
+    const patterns = [
+      /(?:抽選開始時間|抽選開始|抽選期間|抽選日期|日期|期間)\s*[:：]?\s*(\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?(?:\s*[~～至\-]\s*\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?)?)/,
+      /(\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?(?:\s*[~～至\-]\s*\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?)?)/,
+      /(\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?(?:\s*[~～至\-]\s*\d{1,2}[\/\.\-]\d{1,2})?)/
+    ];
+    for (const re of patterns) {
+      const m = t.match(re);
+      if (m) return m[1];
+    }
+    return '抽選中';
   }
+
+  function cleanProductText(text, store, city) {
+    let t = clean(text);
+    if (!t) return '';
+    for (const alias of store?.aliases || []) {
+      if (alias) t = t.replace(new RegExp(alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), ' ');
+    }
+    if (city) t = t.replace(new RegExp(city.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), ' ');
+    t = t
+      .replace(/抽獎\s*[↗→]?/gi, ' ')
+      .replace(/抽選開始時間|抽選開始|抽選期間|抽選日期|抽選中|抽選/g, ' ')
+      .replace(/(?:\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}|\d{1,2}[\/\.\-]\d{1,2})(?:\s+\d{1,2}:\d{2})?/g, ' ')
+      .replace(/https?:\/\/\S+/g, ' ')
+      .replace(/加入好友|官方帳號|LINE/gi, ' ')
+      .replace(/[|•·]+/g, ' ');
+    return clean(t);
+  }
+
+  function extractProduct(anchor, row, store) {
+    const candidates = [];
+
+    // 優先讀語意明確的標題/文字元素。
+    row.querySelectorAll('h1,h2,h3,h4,h5,strong,b,p,[class*="title"],[class*="name"],[class*="product"]').forEach(el => {
+      if (el === anchor || el.contains(anchor)) return;
+      const t = cleanProductText(el.textContent, store, cityFromStore(store));
+      if (t.length >= 2 && t.length <= 160) candidates.push(t);
+    });
+
+    // 再讀 row 內的直接文字節點，避免把整張門市卡片內容塞進商品名稱。
+    const walker = row.ownerDocument.createTreeWalker(row, NodeFilter.SHOW_TEXT);
+    const texts = [];
+    let node;
+    while ((node = walker.nextNode())) {
+      if (anchor.contains(node)) continue;
+      const t = cleanProductText(node.nodeValue, store, cityFromStore(store));
+      if (t.length >= 2 && t.length <= 160) texts.push(t);
+    }
+    candidates.push(...texts);
+
+    const bad = /^(抽選中|抽選|抽獎|開始時間|日期|期間|門市|商品|Funbox)$/i;
+    const unique = [...new Set(candidates.map(clean).filter(x => !bad.test(x)))];
+    // 排除明顯的單字/版面殘片，例如截圖中出現的 X-。
+    const meaningful = unique.filter(x => !/^[A-Za-z]{1,2}[-_]?$/i.test(x));
+    return meaningful.sort((a,b) => b.length - a.length)[0] || '陀螺抽選商品';
+  }
+
   function parse(html) {
-    const doc = new DOMParser().parseFromString(html,'text/html');
-    const anchors = [...doc.querySelectorAll('a[href]')].filter(a => isDrawUrl(normalizeUrl(a.getAttribute('href'))));
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const knownStores = getKnownStores();
+    const anchors = [...doc.querySelectorAll('a[href]')]
+      .filter(a => isDrawUrl(normalizeUrl(a.getAttribute('href'))));
+
     const items = [];
     const seen = new Set();
+
     for (const a of anchors) {
       const url = normalizeUrl(a.getAttribute('href'));
-      if (!url || seen.has(url)) continue;
-      seen.add(url);
-      const ctx = nearestContext(a);
-      const city = findCity(ctx) || '未分類';
-      const product = extractProduct(ctx, clean(a.textContent));
-      const store = extractStore(ctx, city);
-      items.push({city,store,product,date:findDate(ctx),url});
+      if (!url) continue;
+
+      const found = findStoreForAnchor(a, knownStores);
+      if (!found) continue; // 無法確認門市就不要亂歸到「Funbox 門市」
+
+      const { store, container } = found;
+      const row = findRow(a, container);
+      const product = extractProduct(a, row, store);
+      const date = findDate(clean(row.textContent));
+      const key = `${store.city}|${store.name}|${product}|${url}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push({
+        city: cityFromStore(store),
+        store: store.name,
+        product,
+        date,
+        url
+      });
     }
-    // 若頁面有重複按鈕，依網址去重；並清掉明顯不是抽選入口的 LINE 連結。
-    return items.filter(x => x.url && (x.product !== '陀螺抽選商品' || x.store !== 'Funbox 門市'));
+
+    return items;
   }
 
   async function fetchHtml(url) {

@@ -18,18 +18,6 @@
   <a class="hero-button" href="#stores">開始找門市 <span>↓</span></a></div>
   <div class="hero-stat"><strong id="heroTotal">77</strong><span>門市</span><div class="mini-line"></div><small>Funbox・來玩聚</small></div>
 </div></section>
-<section id="stores" class="directory"><div class="container">
-  <div class="section-head"><div><p class="eyebrow">STORE DIRECTORY</p><h2>門市列表</h2></div>
-  <div class="progress-box"><div><strong id="doneCount">0</strong><span>/ 77 已加入</span></div><div class="progress"><i id="progressBar"></i></div><p id="resultText" class="result"></p></div></div>
-  <div class="controls">
-    <div class="filter-title">品牌</div><div class="tabs" id="brandTabs"></div>
-    <div class="filter-title city-title">縣市</div><div class="tabs city-tabs" id="cityTabs"></div>
-    <div class="view-tabs" id="viewTabs"><button class="view active" data-view="all">全部</button><button class="view" data-view="done">✓ 已加入</button><button class="view" data-view="todo">未加入</button></div>
-    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="搜尋店名、縣市或 LINE ID"></label>
-    <button class="clear-done" id="clearDone" type="button">清除紀錄</button>
-  </div>
-  <div id="grid" class="grid"></div>
-</div></section>
 <section id="gyro" class="directory gyro-section">
 <div class="container">
 <div class="section-head"><div><p class="eyebrow">GYRO DRAW</p><h2>🌀 陀螺抽選</h2></div></div>
@@ -51,6 +39,19 @@
 </div>
 </div>
 </section>
+<section id="stores" class="directory"><div class="container">
+  <div class="section-head"><div><p class="eyebrow">STORE DIRECTORY</p><h2>門市列表</h2></div>
+  <div class="progress-box"><div><strong id="doneCount">0</strong><span>/ 77 已加入</span></div><div class="progress"><i id="progressBar"></i></div><p id="resultText" class="result"></p></div></div>
+  <div class="controls">
+    <div class="filter-title">品牌</div><div class="tabs" id="brandTabs"></div>
+    <div class="filter-title city-title">縣市</div><div class="tabs city-tabs" id="cityTabs"></div>
+    <div class="view-tabs" id="viewTabs"><button class="view active" data-view="all">全部</button><button class="view" data-view="done">✓ 已加入</button><button class="view" data-view="todo">未加入</button></div>
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="搜尋店名、縣市或 LINE ID"></label>
+    <button class="clear-done" id="clearDone" type="button">清除紀錄</button>
+  </div>
+  <div id="grid" class="grid"></div>
+</div></section>
+
 </main>
 <footer><div class="container footer-inner"><span>FUNBOX × 來玩聚 LINE CENTER</span><span>獨立網站・資料可自行維護</span></div></footer>
 <script src="data.js"></script><script src="script.js"></script>

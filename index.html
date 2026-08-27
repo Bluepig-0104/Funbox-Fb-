@@ -21,15 +21,14 @@
 <section id="gyro" class="directory gyro-section">
 <div class="container">
   <div class="section-head">
-    <div><p class="eyebrow">GYRO DRAW</p><h2>🌀 陀螺抽選</h2><p class="gyro-subtitle">每個商品直接對應官方 LINE 抽選連結，點擊即可進入抽選。</p></div>
-    <div class="gyro-meta"><strong id="gyroCount">—</strong><span>項抽選商品</span><small id="gyroUpdated">同步中…</small></div>
+    <div><p class="eyebrow">GYRO DRAW</p><h2>🌀 陀螺抽選</h2><p class="gyro-subtitle">最新抽選資訊｜2026/08/28 ～ 2026/08/29</p></div>
+    <a class="gyro-source" href="https://uxux11.github.io/funbox-line/" target="_blank" rel="noopener">查看原始抽選頁 ↗</a>
   </div>
-  <div class="gyro-controls">
-    <div class="tabs city-tabs" id="gyroCityTabs"></div>
-    <label class="search gyro-search"><span>⌕</span><input id="gyroSearch" type="search" placeholder="搜尋門市或商品"></label>
-    <button class="clear-done" id="gyroRefresh" type="button">↻ 更新抽選</button>
+  <div class="gyro-toolbar">
+    <div class="gyro-filter-title">地區</div><div class="gyro-tabs" id="gyroCityTabs"></div>
+    <label class="gyro-search"><span>⌕</span><input id="gyroSearch" type="search" placeholder="搜尋門市或陀螺商品"></label>
   </div>
-  <div id="gyroGrid" class="gyro-list"><div class="gyro-loading"><span>🌀</span> 正在同步最新抽選…</div></div>
+  <div id="gyroGrid" class="gyro-grid"></div>
 </div>
 </section>
 <section id="stores" class="directory"><div class="container">
@@ -47,5 +46,5 @@
 
 </main>
 <footer><div class="container footer-inner"><span>FUNBOX × 來玩聚 LINE CENTER</span><span>獨立網站・資料可自行維護</span></div></footer>
-<script src="data.js"></script><script src="script.js"></script><script src="gyro.js"></script>
+<script src="data.js"></script><script src="script.js"></script>
 </body></html>

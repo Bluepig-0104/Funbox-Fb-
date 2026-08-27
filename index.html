@@ -20,23 +20,16 @@
 </div></section>
 <section id="gyro" class="directory gyro-section">
 <div class="container">
-<div class="section-head"><div><p class="eyebrow">GYRO DRAW</p><h2>🌀 陀螺抽選</h2></div></div>
-<div class="gyro-grid">
-<div class="gyro-card">
-<h3>Funbox 台南遠百</h3>
-<p>商品：BEYBLADE X（測試）</p>
-<p>日期：8/28 - 8/29</p>
-<p>狀態：🟢 抽選中</p>
-<div><a href="#">LINE VOOM</a><a href="#">Facebook</a></div>
-</div>
-<div class="gyro-card">
-<h3>來玩聚 鳳山家樂福</h3>
-<p>商品：陀螺抽選（測試）</p>
-<p>日期：8/28 - 8/29</p>
-<p>狀態：🟢 抽選中</p>
-<div><a href="#">LINE VOOM</a><a href="#">Facebook</a></div>
-</div>
-</div>
+  <div class="section-head">
+    <div><p class="eyebrow">GYRO DRAW</p><h2>🌀 陀螺抽選</h2><p class="gyro-subtitle">每個商品直接對應官方 LINE 抽選連結，點擊即可進入抽選。</p></div>
+    <div class="gyro-meta"><strong id="gyroCount">—</strong><span>項抽選商品</span><small id="gyroUpdated">同步中…</small></div>
+  </div>
+  <div class="gyro-controls">
+    <div class="tabs city-tabs" id="gyroCityTabs"></div>
+    <label class="search gyro-search"><span>⌕</span><input id="gyroSearch" type="search" placeholder="搜尋門市或商品"></label>
+    <button class="clear-done" id="gyroRefresh" type="button">↻ 更新抽選</button>
+  </div>
+  <div id="gyroGrid" class="gyro-list"><div class="gyro-loading"><span>🌀</span> 正在同步最新抽選…</div></div>
 </div>
 </section>
 <section id="stores" class="directory"><div class="container">
@@ -54,5 +47,5 @@
 
 </main>
 <footer><div class="container footer-inner"><span>FUNBOX × 來玩聚 LINE CENTER</span><span>獨立網站・資料可自行維護</span></div></footer>
-<script src="data.js"></script><script src="script.js"></script>
+<script src="data.js"></script><script src="script.js"></script><script src="gyro.js"></script>
 </body></html>

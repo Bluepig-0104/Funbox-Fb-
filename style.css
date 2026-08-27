@@ -29,3 +29,11 @@
 .gyro-tag{font-size:13px;font-weight:700}
 .gyro-links{display:flex;gap:10px;margin-top:15px}
 .gyro-links a{text-decoration:none;font-weight:700}
+/* v1.5 Gyro Draw integration */
+.gyro-subtitle{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.7}
+.gyro-meta{min-width:170px;text-align:right}.gyro-meta strong{display:block;font-size:34px;line-height:1}.gyro-meta span{font-size:12px;color:var(--muted)}.gyro-meta small{display:block;margin-top:8px;color:var(--green2);font-weight:800}
+.gyro-controls{display:flex;align-items:center;gap:12px;margin-bottom:22px;flex-wrap:wrap}.gyro-search{margin-left:auto}.gyro-list{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.gyro-item{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:20px;transition:.2s}.gyro-item:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.07)}
+.gyro-item-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}.gyro-city{font-size:10px;font-weight:900;letter-spacing:.12em;color:var(--green2)}.gyro-date{font-size:10px;color:var(--muted);white-space:nowrap}
+.gyro-item h3{font-size:20px;margin:0 0 14px}.gyro-products{display:grid;gap:8px}.gyro-product{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:12px}.gyro-product strong{font-size:14px;line-height:1.5}.gyro-draw{flex:0 0 auto;display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:#fff;text-decoration:none;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:900}.gyro-draw b{color:var(--yellow);font-size:15px}.gyro-loading{grid-column:1/-1;text-align:center;padding:55px;color:var(--muted);background:var(--paper);border:1px dashed var(--line);border-radius:22px}.gyro-loading span{display:inline-block;margin-right:7px;animation:gyrospin 1.1s linear infinite}@keyframes gyrospin{to{transform:rotate(360deg)}}
+@media(max-width:850px){.gyro-list{grid-template-columns:1fr}.gyro-meta{text-align:left}.gyro-search{margin-left:0;width:100%}}@media(max-width:620px){.gyro-item-top{align-items:flex-start}.gyro-product{align-items:flex-end}.gyro-product strong{font-size:13px}.gyro-draw{padding:8px 12px}}

@@ -90,3 +90,25 @@ $("#clearDone").addEventListener("click", () => {
 
 $("#heroTotal").textContent = stores.length;
 initBrandTabs(); initCityTabs(); initViews(); render();
+
+
+// Page switching: keep LINE store directory and gyro draw on separate screens.
+function setPage(page, updateHash = true){
+  if (!document.querySelector(`.page-panel[data-page="${page}"]`)) page = "stores";
+  document.querySelectorAll(".page-panel").forEach(panel => panel.classList.toggle("active", panel.dataset.page === page));
+  document.querySelectorAll(".page-nav").forEach(button => button.classList.toggle("active", button.dataset.page === page));
+  if (updateHash) history.replaceState(null, "", `#${page}`);
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+document.querySelectorAll("[data-page]").forEach(button => {
+  if (button.classList.contains("page-panel")) return;
+  button.addEventListener("click", () => setPage(button.dataset.page));
+});
+
+const initialPage = location.hash.replace("#", "");
+setPage(initialPage === "gyro" ? "gyro" : "stores", false);
+window.addEventListener("hashchange", () => {
+  const page = location.hash.replace("#", "");
+  setPage(page === "gyro" ? "gyro" : "stores", false);
+});

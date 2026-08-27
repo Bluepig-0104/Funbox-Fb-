@@ -25,16 +25,28 @@
     if(!cities.includes(selectedCity)) selectedCity='全部';
     $('gyroCityTabs').innerHTML=cities.map(c=>`<button class="gyro-city-tab ${c===selectedCity?'active':''}" data-city="${esc(c)}">${esc(c)} <b>${stores.filter(s=>c==='全部'||s.city===c).length}</b></button>`).join('');
     $('gyroCityTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{selectedCity=b.dataset.city;render();});
+
     const list=stores.filter(s=>{
       const cityOK=selectedCity==='全部'||s.city===selectedCity;
       const text=`${s.city} ${s.store} ${s.products.map(p=>p.product).join(' ')}`.toLowerCase();
       return cityOK && (!q||text.includes(q));
     });
     $('gyroStoreCount').textContent=list.length;
-    $('gyroGrid').innerHTML=list.length?list.map(s=>`<article class="gyro-store-card">
-      <header><div><span>${esc(s.city)}</span><h3>${esc(s.store)}</h3></div><strong>${s.products.length} 項抽選</strong></header>
+
+    const byCity=new Map();
+    for(const s of list){
+      if(!byCity.has(s.city)) byCity.set(s.city,[]);
+      byCity.get(s.city).push(s);
+    }
+
+    const card=s=>`<article class="gyro-store-card">
+      <header><div><h3>${esc(s.store)}</h3></div><strong>${s.products.length} 項抽選</strong></header>
       <div class="gyro-products">${s.products.map(p=>`<div class="gyro-product-row"><div><b>${esc(p.product)}</b><small>${esc(p.date)}</small></div>${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">抽獎 <em>↗</em></a>`:`<span class="gyro-no-link">無連結</span>`}</div>`).join('')}</div>
-    </article>`).join(''):'<div class="gyro-empty">目前沒有符合條件的抽選門市。</div>';
+    </article>`;
+
+    $('gyroGrid').innerHTML=list.length
+      ? [...byCity.entries()].map(([city,cityStores])=>`<section class="gyro-city-group"><div class="gyro-city-group-head"><h3>${esc(city)}</h3><span>${cityStores.length} 間門市</span></div><div class="gyro-store-grid">${cityStores.map(card).join('')}</div></section>`).join('')
+      : '<div class="gyro-empty">目前沒有符合條件的抽選門市。</div>';
   }
   window.renderGyro=render;
   window.setGyroData=data=>{ lastData=data||{items:[]}; window.FUNBOX_GYRO=lastData; render(); };

@@ -1,21 +1,16 @@
-# Funbox × 來玩聚 LINE Center v1.7
+# Funbox LINE 門市 + 陀螺抽選
 
-本版本改成兩大分類單頁切換：
+這個版本遵守兩套資料來源完全分離：
 
-1. LINE 門市
-2. 🌀 陀螺抽選
+- **LINE 門市**：維持原本 `data.js`，不參與陀螺抽選解析。
+- **🌀 陀螺抽選**：以 `https://uxux11.github.io/funbox-line/` 為唯一來源；門市名稱、商品名稱、日期與每個商品的 LINE 抽獎連結都以來源頁為準。
+- 同一門市的所有抽選會集中在同一張門市卡片。
+- 來源頁抓不到或解析不到資料時，不會用錯誤結果覆蓋既有 `gyro-data.json`。
 
-兩個區塊不會同時堆在同一個長頁面；點上方分類即可切換，因此找門市時不必一路往下滑。
+## 自動同步
 
-## 陀螺抽選資料
+已附 `.github/workflows/sync-gyro.yml`，GitHub Actions 每 10 分鐘抓一次來源並更新 `Funbox-Fb--main/gyro-data.json`。
 
-已移除外部抽選頁抓取機制。抽選資料固定放在 `gyro-data.js`，每一筆商品包含：
-- city
-- store
-- product
-- date
-- url（該商品自己的 LINE 抽選連結）
+請將整個資料夾內容放到你的 GitHub repository，並在 repository 的 Actions 設定允許 workflow 寫入內容（Workflow permissions: Read and write）。首次可手動執行 `Sync gyro draw data`。
 
-更新抽選時只需要修改 `gyro-data.js`，網站不會再依賴 `https://uxux11.github.io/funbox-line/`。
-
-注意：目前工作檔能取得的固定抽選資料只有 `台南遠百 / BEYBLADE X` 這一筆；其餘商品的實際 LINE 抽選網址無法從目前可取得的來源可靠還原，因此沒有虛構網址。把完整抽選清單貼入 `gyro-data.js` 後即可完全離線運作。
+前端也保留手動更新與瀏覽器快取作為備援。

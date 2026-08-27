@@ -90,14 +90,3 @@ $("#clearDone").addEventListener("click", () => {
 
 $("#heroTotal").textContent = stores.length;
 initBrandTabs(); initCityTabs(); initViews(); render();
-
-
-// Two-category app shell: only one major content panel is visible at a time.
-document.querySelectorAll('.top-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.panel;
-    document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', b === btn));
-    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === target + 'Panel'));
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  });
-});

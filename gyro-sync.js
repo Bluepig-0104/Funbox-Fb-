@@ -8,6 +8,21 @@
   const isDraw=u=>/^(https?:\/\/)?(?:liff\.line\.me|lin\.ee)\//i.test(u||'');
   const urlOf=(href)=>{try{return new URL(href,SOURCE).href}catch{return ''}};
   const cityRe=/^(台北市|新北市|桃園市|新竹市|新竹縣|苗栗縣|台中市|彰化縣|南投縣|雲林縣|嘉義市|嘉義縣|台南市|高雄市|屏東縣|宜蘭縣|花蓮縣|台東縣|澎湖縣|金門縣|連江縣)$/;
+  const CITY_NAMES=['台北市','新北市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣','澎湖縣','金門縣','連江縣'];
+  const norm=v=>String(v||'').toLowerCase().replace(/fun\s*box|funbox|來玩聚|玩聚|門市|店/g,'').replace(/[\s\-—_:：()（）\[\]【】]/g,'').trim();
+  function resolveCity(store, rawCity=''){
+    if(CITY_NAMES.includes(rawCity)) return rawCity;
+    const direct=CITY_NAMES.find(c=>String(store||'').includes(c));
+    if(direct) return direct;
+    const target=norm(store), stores=Array.isArray(window.FUNBOX_STORES)?window.FUNBOX_STORES:[];
+    if(!target) return rawCity||'未分類';
+    const exact=stores.find(s=>norm(s.name)===target);
+    if(exact?.city) return exact.city;
+    const candidates=stores.map(s=>({city:s.city,name:norm(s.name)})).filter(s=>s.name&&(target.includes(s.name)||s.name.includes(target)));
+    if(candidates.length===1) return candidates[0].city;
+    if(candidates.length>1){candidates.sort((a,b)=>b.name.length-a.name.length);return candidates[0].city||rawCity||'未分類';}
+    return rawCity||'未分類';
+  }
   const storeRe=/^(?:Fun\s*box|Funbox|來玩聚)(?:[\s\-—_:：]*).{1,80}$/i;
   const dateRe=/(\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?(?:\s*[~～至\-]\s*\d{4}[\/\.\-]\d{1,2}[\/\.\-]\d{1,2}(?:\s+\d{1,2}:\d{2})?)?)/;
 
@@ -57,7 +72,7 @@
     const items=[]; const seen=new Set();
     for(const a of anchors){
       const sh=nearestStoreHeading(a,stores); if(!sh) continue;
-      const store=sh.text; const city=nearestCity(sh,cities);
+      const store=sh.text; const city=resolveCity(store,nearestCity(sh,cities));
       // Date: search the nearest previous text node/element after the city/store heading.
       let date='抽選中';
       for(let j=sh.i;j<a._idx;j++){

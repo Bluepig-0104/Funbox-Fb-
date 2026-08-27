@@ -4,12 +4,36 @@
   let selectedCity = '全部';
   let lastData = { items: [] };
 
+  const CITY_NAMES=['台北市','新北市','桃園市','新竹市','新竹縣','苗栗縣','台中市','彰化縣','南投縣','雲林縣','嘉義市','嘉義縣','台南市','高雄市','屏東縣','宜蘭縣','花蓮縣','台東縣','澎湖縣','金門縣','連江縣'];
+  const norm=v=>String(v||'').toLowerCase().replace(/fun\s*box|funbox|來玩聚|玩聚|門市|店/g,'').replace(/[\s\-—_:：()（）\[\]【】]/g,'').trim();
+  function resolveCity(item){
+    const raw=String(item?.city||'').trim();
+    if(CITY_NAMES.includes(raw)) return raw;
+    const text=`${item?.store||''} ${item?.product||''}`;
+    const direct=CITY_NAMES.find(c=>text.includes(c));
+    if(direct) return direct;
+    const target=norm(item?.store);
+    const stores=Array.isArray(window.FUNBOX_STORES)?window.FUNBOX_STORES:[];
+    if(!target) return raw||'未分類';
+    const exact=stores.find(s=>norm(s.name)===target);
+    if(exact?.city) return exact.city;
+    const candidates=stores.map(s=>({city:s.city,name:norm(s.name)})).filter(s=>s.name&&(target.includes(s.name)||s.name.includes(target)));
+    if(candidates.length===1) return candidates[0].city;
+    if(candidates.length>1){
+      candidates.sort((a,b)=>b.name.length-a.name.length);
+      const top=candidates[0];
+      const tied=candidates.filter(x=>x.name.length===top.name.length&&x.city!==top.city);
+      if(!tied.length) return top.city;
+    }
+    return raw||'未分類';
+  }
+
   function getData(){ return Array.isArray(window.FUNBOX_GYRO?.items) ? window.FUNBOX_GYRO.items : []; }
   function groupStores(items){
     const map = new Map();
     for(const item of items){
       const store = (item.store || '未命名門市').trim();
-      const city = (item.city || '未分類').trim();
+      const city = resolveCity(item);
       const key = `${city}|||${store}`;
       if(!map.has(key)) map.set(key,{city,store,products:[]});
       const g=map.get(key);

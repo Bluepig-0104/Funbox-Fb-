@@ -18,3 +18,7 @@
 .brand-tab.active .num,.city-tab.active .num{opacity:.8}
 #brandTabs{display:flex;flex-wrap:wrap;gap:8px}
 @media (max-width:640px){.city-tab,.brand-tab{padding:8px 11px;font-size:12px}.filter-title{margin-top:2px}}
+
+.gyro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.gyro-card{background:#fff;border:1px solid #ddd;border-radius:18px;padding:20px}
+.gyro-card a{display:inline-block;margin-right:10px;padding:8px 14px;border-radius:20px;background:#111;color:#fff;text-decoration:none}

@@ -90,21 +90,3 @@ $("#clearDone").addEventListener("click", () => {
 
 $("#heroTotal").textContent = stores.length;
 initBrandTabs(); initCityTabs(); initViews(); render();
-
-
-const gyroData = [
- {brand:"Funbox",store:"測試店家（範例）",city:"台北市",product:"BEYBLADE X 陀螺",date:"8/28 - 8/29",status:"🟢 抽選中",line:"",fb:""}
-];
-function renderGyro(){
- const el=document.querySelector("#gyroGrid");
- if(!el)return;
- el.innerHTML=gyroData.map(g=>`<article class="card">
- <div class="region">${g.brand} / ${g.city}</div>
- <h3>🌀 ${g.store}</h3>
- <div class="lineid">${g.product}</div>
- <p>日期：${g.date}</p><p>狀態：${g.status}</p>
- <a href="${g.line||'#'}" target="_blank">LINE VOOM ↗</a>
- <a href="${g.fb||'#'}" target="_blank">Facebook ↗</a>
- </article>`).join("");
-}
-renderGyro();

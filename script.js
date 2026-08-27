@@ -92,24 +92,12 @@ $("#heroTotal").textContent = stores.length;
 initBrandTabs(); initCityTabs(); initViews(); render();
 
 
-// GYRO DRAW — current draw listing integrated from the public Funbox draw page
-let gyroCity = "全部";
-const gyroData = window.FUNBOX_GYRO || {};
-function initGyro(){
-  const items = gyroData.items || [];
-  const cities = ["全部", ...new Set(items.map(x=>x.city).filter(Boolean))];
-  const tabs = $("#gyroCityTabs");
-  if(!tabs) return;
-  tabs.innerHTML = cities.map(c=>`<button class="gyro-tab ${c===gyroCity?"active":""}" data-city="${esc(c)}">${esc(c)}<span>${c==="全部"?items.length:items.filter(x=>x.city===c).length}</span></button>`).join("");
-  tabs.querySelectorAll("button").forEach(b=>b.onclick=()=>{gyroCity=b.dataset.city;initGyro();renderGyro();});
-  $("#gyroSearch").addEventListener("input",renderGyro);
-  renderGyro();
-}
-function renderGyro(){
-  const q=$("#gyroSearch")?.value.trim().toLowerCase()||"";
-  const all=gyroData.items||[];
-  const list=all.filter(x=> (gyroCity==="全部"||x.city===gyroCity) && (!q || (x.store+" "+x.city+" "+x.products.join(" ")).toLowerCase().includes(q)));
-  $("#gyroGrid").innerHTML=list.map(x=>`<article class="gyro-card"><div class="gyro-meta"><span>${esc(x.city)}</span><b>${x.products.length} 項</b></div><h3>${esc(x.store)}</h3><p class="gyro-date">${esc(gyroData.date||"")}</p><div class="gyro-products">${x.products.map((p,i)=>`<div class="gyro-product"><span>${esc(p)}</span><a href="${gyroData.source}" target="_blank" rel="noopener">抽獎 ↗</a></div>`).join("")}</div></article>`).join("") || `<div class="empty">找不到符合條件的抽選。</div>`;
-}
-
-fetch("gyro-data.json").then(r=>r.json()).then(d=>{window.FUNBOX_GYRO=d;initGyro();}).catch(()=>{});
+// Two-category app shell: only one major content panel is visible at a time.
+document.querySelectorAll('.top-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.panel;
+    document.querySelectorAll('.top-tab').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === target + 'Panel'));
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+});
